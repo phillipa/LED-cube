@@ -82,57 +82,57 @@ void setup() {
 CRGBPalette16 palettes[] = {adbasic, blues, bluespurples, greens, yellows,darkpurples,HeatColors_p,CloudColors_p, ForestColors_p};
 void loop() {
 
-
-run_sparks(palettes[palette_i]);
-
-if(global_i > 1000)
-{
-  global_i =0;
-  palette_i++;
-  palette_i %= 9;
-}
+  run_sparks(palettes[palette_i]);
+  
+  if(global_i > 1000)
+  {
+    global_i =0;
+    palette_i++;
+    palette_i %= 9;
+  }
 }
 
 void run_sparks(CRGBPalette16 palette)
 {
+  
   for(int i = 0; i < NUM_LEDS; i++)
- { 
-  if(sparks[i%NUM_SPARKS]>0)
-  {
-    leds[i] = ColorFromPalette(palette, ((int)(global_i/5)+i)%255);
-    for(int d=0; d<(255-sparks[i%NUM_SPARKS]);d++)
+  { 
+    if(sparks[i%NUM_SPARKS]>0) //if the spark corresponding to this LED (i) is lit (>0)
     {
-      if(leds[i].r >0)
-        leds[i].r--;
-      if(leds[i].g > 0)
-        leds[i].g--;
-      if(leds[i].b > 0)
-      leds[i].b--;
+      
+      leds[i] = ColorFromPalette(palette, ((int)(global_i/5)+i)%255); //??
+      
+      for(int d=0; d<(255-sparks[i%NUM_SPARKS]);d++) //some sort of fading. 
+      {
+        if(leds[i].r >0)
+          leds[i].r--;
+        if(leds[i].g > 0)
+          leds[i].g--;
+        if(leds[i].b > 0)
+          leds[i].b--;
+      }
     }
   }
- }
 
  //update the spark values.
    for(int i = 0; i < NUM_SPARKS;i++)
    {
       if(sparks[i] > 0)
       {
-       
-          sparks[i]--;
+        sparks[i]--;
           
         if(sparks[i] < 5 || sparks[i] > 255)
           sparks[i] = 0;
-        
-  
+         
       }
       else
       {
          if(random(0,100)<perc_sparks)
-      sparks[i] = random(0,255);
+            sparks[i] = random(0,255);
       }
    }
 
-   global_i++;
+    global_i++;
     LEDS.show();
     delay(50);
 }
