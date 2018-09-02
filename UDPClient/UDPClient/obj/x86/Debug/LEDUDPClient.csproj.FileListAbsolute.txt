@@ -1,0 +1,12 @@
+/Users/phillipa/Projects/UDPClient/UDPClient/bin/Debug/UDPClient.exe
+/Users/phillipa/Projects/UDPClient/UDPClient/bin/Debug/UDPClient.pdb
+/Users/phillipa/Projects/UDPClient/UDPClient/obj/x86/Debug/LEDUDPClient.csprojAssemblyReference.cache
+/Users/phillipa/Projects/UDPClient/UDPClient/obj/x86/Debug/LEDUDPClient.csproj.CoreCompileInputs.cache
+/Users/phillipa/Projects/UDPClient/UDPClient/obj/x86/Debug/UDPClient.exe
+/Users/phillipa/Projects/UDPClient/UDPClient/obj/x86/Debug/UDPClient.pdb
+/Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/bin/Debug/UDPClient.exe
+/Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/obj/x86/Debug/LEDUDPClient.csprojAssemblyReference.cache
+/Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/obj/x86/Debug/LEDUDPClient.csproj.CoreCompileInputs.cache
+/Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/obj/x86/Debug/UDPClient.exe
+/Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/obj/x86/Debug/UDPClient.pdb
+/Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/bin/Debug/UDPClient.pdb
