@@ -9,3 +9,9 @@ LED-cube code.
 `netcat -dkl 7777 -u > /dev/ttyACM0 & `
 
 * TeensyUSBReader reads from USB, writes to LEDs.
+
+** Notes **
+
+* kill netcat on raspberry pi before unplugging teensy from USB. 
+* restart netcat when replugging in the teensy to the pi. 
+
