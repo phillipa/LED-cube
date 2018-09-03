@@ -12,6 +12,5 @@ LED-cube code.
 
 ** Notes **
 
-* kill netcat on raspberry pi before unplugging teensy from USB. 
-* restart netcat when replugging in the teensy to the pi. 
+* kill netcat on raspberry pi before unplugging teensy from USB. restart netcat when replugging in the teensy to the pi. (otherwise you get permission denied errors on ttyACM0 
 
