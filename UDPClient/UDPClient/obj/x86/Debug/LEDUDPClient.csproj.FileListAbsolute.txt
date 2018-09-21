@@ -10,3 +10,8 @@
 /Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/obj/x86/Debug/UDPClient.exe
 /Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/obj/x86/Debug/UDPClient.pdb
 /Users/phillipa/Dropbox/Teensy LED/UDPClient/UDPClient/bin/Debug/UDPClient.pdb
+C:\Development\LED-cube\UDPClient\UDPClient\bin\Debug\UDPClient.exe
+C:\Development\LED-cube\UDPClient\UDPClient\bin\Debug\UDPClient.pdb
+C:\Development\LED-cube\UDPClient\UDPClient\obj\x86\Debug\LEDUDPClient.csprojResolveAssemblyReference.cache
+C:\Development\LED-cube\UDPClient\UDPClient\obj\x86\Debug\UDPClient.exe
+C:\Development\LED-cube\UDPClient\UDPClient\obj\x86\Debug\UDPClient.pdb
