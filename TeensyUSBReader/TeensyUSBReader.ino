@@ -9,10 +9,10 @@
 #include <OctoWS2811.h>
 #include<FastLED.h>
 
-const byte DEBUG = 0;
+const byte DEBUG = 1;
 const int CONFIG = WS2811_GRB | WS2811_800kHz;
 const int NUM_LEDS_PER_STRIP = 15;
-const int NUM_STRIPS = 8; //lies
+const int NUM_STRIPS = 4; //lies
 
 const int FRAME_SIZE = NUM_LEDS_PER_STRIP * NUM_STRIPS;
 const uint8_t DARKEN = 1;
@@ -41,35 +41,58 @@ CRGB nextFrame[FRAME_SIZE]; //buffer to hold colors before redraw
 //  return row + (col * ROWS);
 //}
 
-void displayFrame() {
- 
+// Build and display the next frame
+void displayFrame() 
+{ 
   for (int i = 0; i < FRAME_SIZE; i++) {
     leds[i]=nextFrame[i];
   }
+  
   LEDS.show();
 }
 
 void setLEDsColor(CRGB color, boolean test)
 {
-  for(int i = 0; i < FRAME_SIZE;i++)
-  {
-   if(!test || i%2 ==0)
+  for(int i = 0; i < FRAME_SIZE;i++) {
     leds[i] = color;
   }
-    LEDS.show();
-    delay(1000);
+  
+  LEDS.show();  
 }
-void setup() {
 
+void clearLEDs() {
+  for (int i = 0; i < FRAME_SIZE; i++) {
+      leds[i] = CRGB::Black;
+  }
+  LEDS.show();
+}
+
+void setup() {
+  
+  // Initialize LED array
   LEDS.addLeds<OCTOWS2811>(leds, NUM_LEDS_PER_STRIP);
   LEDS.setBrightness(32);
+  clearLEDs();
+  
+  // LED startup sequence - this can be whatever
+  for (int i = 0; i < FRAME_SIZE; i++) {
+    leds[i] = CRGB::Green;
+  }
+  LEDS.show();
+  delay(1000);  
   
   for (int i = 0; i < FRAME_SIZE; i++) {
-    nextFrame[i] = CRGB::HotPink;
-  }
- //  leds.begin();
+    nextFrame[i] = CRGB::Blue;
+  }  
+   
+  // leds.begin();
+  // Verify buffer transfer works
   displayFrame();
-  Serial.begin(9600); // USB is always 12 Mbit/sec
+  delay(1000);
+  clearLEDs();
+  
+  // Declared serial speed does not matter over USB  
+  Serial.begin(9600);  
 }
 
 uint32_t currentColour = 0;
@@ -77,19 +100,22 @@ int bytesProcessed = 0;
 int pixelIndex = 0;
 int clrIndex = 0;
 int rstIndex = 0;
+
 void loop()
 {
   
   // Read from USB
   uint8_t incomingByte;
-  if (Serial.available()) {
 
-    incomingByte = Serial.read();
-    //Check for frame end signal
-    if (CLR_SIG[clrIndex] == incomingByte) {
-      if (++clrIndex >= CLR_LEN) {
-        if(DEBUG != 0)
-          setLEDsColor(CRGB::Olive,true);
+  if (Serial.available()) {
+    //clearLEDs();
+    //return;
+  
+  incomingByte = Serial.read();
+    
+  //Check for frame end signal
+  if (CLR_SIG[clrIndex] == incomingByte) {
+    if (++clrIndex >= CLR_LEN) {        
         // Received the clear signal
         pixelIndex = 0;
         bytesProcessed = 0;
@@ -98,23 +124,21 @@ void loop()
         displayFrame();
         return;
       }
-    }
-    else if (clrIndex > 0) {
-      clrIndex = 0;
-    }
-      //check for frame start signal
-      if (RST_SIG[rstIndex] == incomingByte) {
+  }
+  else if (clrIndex > 0) {
+    clrIndex = 0;
+  }      
+    
+    // Check for frame start signal
+    if (RST_SIG[rstIndex] == incomingByte) {
       if (++rstIndex >= RST_LEN) {
-                if(DEBUG != 0)
-                setLEDsColor(CRGB::Maroon,true);
-
-        // Received the reset signal (throw away any state)
-        pixelIndex = 0;
-        bytesProcessed = 0;
-        rstIndex = 0;
-        currentColour = 0;
-      //  displayFrame();
-        return;
+         // Received the reset signal (throw away any state)
+         pixelIndex = 0;
+         bytesProcessed = 0;
+         rstIndex = 0;
+         currentColour = 0;
+         //displayFrame();
+         return;
       }
     }
     else if (rstIndex > 0) {
@@ -124,8 +148,8 @@ void loop()
     // Pack the byte into the current 24-bit colour int
     currentColour = (currentColour << 8) + (incomingByte * DARKEN);
 
+    // We've processed a full RGB colour, so set the led
     if (++bytesProcessed >= 3) {
-      // We've processed a full RGB colour, so set the led
       if (pixelIndex < FRAME_SIZE) {
         nextFrame[pixelIndex++] = currentColour;
       }
