@@ -8,18 +8,12 @@ namespace LEDUDPClient
 {
     public static class CRGBColors
     {
-        public static Byte[] BLACK = { 0x00, 0x00, 0x00 };
-        public static Byte[] RED = { 0xcc, 0x00, 0x00 };
-        public static Byte[] BLUE = { 0x00, 0x00, 0xcc };
-        public static Byte[] GREEN = { 0x00, 0xcc, 0x00 };
-        public static Byte[] PURPLE = { 0xcc, 0x00, 0xcc };
-        public static Byte[] ORANGE = { 0xff, 0xa5, 0x00 };
-        public static Byte[] AQUA = { 0x00, 0xff, 0xff };
+
     }
 
     class MainClass
     {
-        public const string UDP_HOST = "192.168.2.1";
+        public const string UDP_HOST = "192.168.0.98";
         public const int UDP_PORT = 7777;
         public const int FRAME_SIZE = 60;
         public static readonly Byte[] END = { 0x01, 0x00, 0x01 };   // clear
@@ -69,13 +63,14 @@ namespace LEDUDPClient
             client.Send(clearFrame, clearFrame.Length); // Clear frame first
             Byte[] shiftSinglePixelFrame;
             int iterations = 5000;
-            int pixelSleep = 0;
+            int pixelSleep = 20;
 
             //TODO: Introduce notion of frame sequences
             int frameSequenceLength = 60;
             sw.Start();
             for (int i = 1; i <= (iterations * frameSequenceLength); i++)
             {
+
                 if (i % 3 == 0)
                     shiftSinglePixelFrame = sendSinglePixelFrame(FRAME_SIZE, i % (FRAME_SIZE), CRGBColors.PURPLE);
                 else if (i % 3 == 1)
@@ -86,7 +81,8 @@ namespace LEDUDPClient
                 // TODO: UDP frame size may be different from LED frame
                 // LED frames might be large enought to require multiple UDP frames
                 client.Send(shiftSinglePixelFrame, shiftSinglePixelFrame.Length);
-                //Thread.Sleep(pixelSleep);
+                Thread.Sleep(pixelSleep);
+
             }
             sw.Stop();
             Helpers.WriteLEDBenchmarks(FRAME_SIZE, frameSequenceLength, iterations, pixelSleep, sw.Elapsed);
