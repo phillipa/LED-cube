@@ -19,19 +19,18 @@ namespace SharpLights
           
             //testing palette functions.
 
-            CRGB[] palette_colors = {CRGB.Red,CRGB.Chartreuse,CRGB.Purple,CRGB.Olive};
+            CRGB[] palette_colors = {CRGB.Red,CRGB.Green,CRGB.Purple,CRGB.Orange};
 
-            Palette test = new Palette(palette_colors);
+            Palette test = new Palette(palette_colors,10);
 
             Color[] testFrame = new Color[50 * 8];
-            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.Coral)));
-            Thread.Sleep(5000);
-            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.Black).bytes));
+           luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.Coral)));
             Thread.Sleep(1000);
+         
 
             //outputs the palette a few times onto the strips. 
         
-            luc.sendFrame(sendPaletteFrame(frame_size,test));
+           luc.sendFrame(sendPaletteFrame(frame_size,test));
 
             luc.closeSocket();
         }
@@ -70,14 +69,14 @@ namespace SharpLights
             for (int i = 0; i < toreturn.Length; i++)
             {
                
-                toreturn[i] = palette.getColor(i%256);
+                toreturn[i] = palette.getColor(i%palette.palette_length);
             }
 
             //testing: make the first n pixels on strip n black
             for (int i = 0; i < num_strips;i++)
             {
-                for (int j = 0; j < i; j++)
-                    toreturn[i * pixels_per_strip + j] = new Color(CRGB.Black);
+                for (int j = 0; j <= i; j++)
+                    toreturn[i * pixels_per_strip + j] = new Color(CRGB.White);
             }
             return toreturn;
         }
