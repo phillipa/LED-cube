@@ -62,8 +62,12 @@ namespace SharpLights
                 frame[3 + i * 3 + 2] = pixels[i].blue;
 
             }
-            for (int i = 0; i < END.Length; i++)
-                frame[3 + pixels.Length + i] = END[i];
+
+            frame[frame.Length - 3] = END[0];
+            frame[frame.Length - 2] = END[1];
+            frame[frame.Length - 1] = END[2];
+
+       
 
             udpClient.Send(frame, frame.Length);
 
