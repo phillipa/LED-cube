@@ -19,7 +19,7 @@ namespace SharpLights
           
             //testing palette functions.
 
-            CRGB[] palette_colors = {CRGB.Red,CRGB.Purple};
+            CRGB[] palette_colors = {CRGB.Red,CRGB.Chartreuse,CRGB.Purple,CRGB.Olive};
 
             Palette test = new Palette(palette_colors);
 
@@ -73,6 +73,12 @@ namespace SharpLights
                 toreturn[i] = palette.getColor(i%256);
             }
 
+            //testing: make the first n pixels on strip n black
+            for (int i = 0; i < num_strips;i++)
+            {
+                for (int j = 0; j < i; j++)
+                    toreturn[i * pixels_per_strip + j] = new Color(CRGB.Black);
+            }
             return toreturn;
         }
     }
