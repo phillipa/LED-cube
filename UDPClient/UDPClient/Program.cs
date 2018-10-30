@@ -19,9 +19,9 @@ namespace LEDUDPClient
 
     class MainClass
     {
-        public const string UDP_HOST = "192.168.2.1";
+        public const string UDP_HOST = "192.168.0.18";
         public const int UDP_PORT = 7777;
-        public const int FRAME_SIZE = 60;
+        public const int FRAME_SIZE = 27*8;
         public static readonly Byte[] END = { 0x01, 0x00, 0x01 };   // clear
         public static readonly Byte[] START = { 0x01, 0x01, 0x00 }; // reset
 
