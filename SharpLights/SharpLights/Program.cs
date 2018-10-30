@@ -19,14 +19,14 @@ namespace SharpLights
           
             //testing palette functions.
 
-            Color.CRGB[] palette_colors = {Color.CRGB.Red,Color.CRGB.Green,Color.CRGB.Blue,Color.CRGB.Purple};
+            CRGB[] palette_colors = {CRGB.Red,CRGB.Purple};
 
             Palette test = new Palette(palette_colors);
 
             Color[] testFrame = new Color[50 * 8];
-            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(Color.CRGB.Coral)));
+            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.Coral)));
             Thread.Sleep(5000);
-            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(Color.CRGB.Black).bytes));
+            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.Black).bytes));
             Thread.Sleep(1000);
 
             //outputs the palette a few times onto the strips. 

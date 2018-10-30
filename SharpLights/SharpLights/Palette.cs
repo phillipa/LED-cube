@@ -15,7 +15,7 @@ namespace SharpLights
 
         //Create a palette of 256 colors out of the array of colors
         //Blend between the colors 
-        public Palette(Color.CRGB[] colors)
+        public Palette(CRGB[] colors)
         {
             //how many colors between colors given to us (interval length)
             int i_colors = (256) / (colors.Length-1);
