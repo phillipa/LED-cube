@@ -1,6 +1,10 @@
 ﻿using System;
+
 namespace SharpLights
 {
+
+   
+
     /// <summary>
     /// Palette.
     /// Basically seems to work. 
@@ -10,7 +14,9 @@ namespace SharpLights
     public class Palette
     {
 
-       public Color[] palette;
+
+
+        public Color[] palette;
         public int palette_length;
         //Create a palette given the input colors
         //it will blend between colors in the specified number of steps
@@ -34,9 +40,39 @@ namespace SharpLights
             }
         }
 
+        /// <summary>
+        /// Gets a random palette.
+        /// you can specify how many colors and how much blending you want 
+        /// between them (larger interval ==> more steps between colors)
+        /// </summary>
+        /// <returns>The random palette.</returns>
+        /// <param name="num_colors">Number colors.</param>
+        /// <param name="interval">Interval.</param>
+       public static Palette getRandomPalette(int num_colors, int interval)
+        {
+            Palette toreturn;
+            
+            CRGB[] palette_colors = new CRGB[num_colors];
+
+            for (int i = 0; i < palette_colors.Length;i++)
+                palette_colors[i] = Color.getRandomCRGBColor();
+
+
+            toreturn = new Palette(palette_colors, interval);
+            return toreturn;
+        }
+
+        //if index is too big return the wrapped around value 
         public Color getColor(int index)
         {
-            return palette[index];
+            return palette[index%palette_length];
+        }
+
+        public Color getRandomColor()
+        {
+
+            Random r = new Random((int)(DateTime.Now.Ticks));
+            return palette[r.Next(0,palette_length)];
         }
     }
 }

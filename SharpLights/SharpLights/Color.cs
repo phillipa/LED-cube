@@ -141,6 +141,24 @@ namespace SharpLights
             return toreturn;
         }
 
+        public static Color getRandomColor()
+        {
+            Random rand = new Random((int)DateTime.Now.ToBinary());
+
+            Array CRGB_colors = Enum.GetValues(typeof(CRGB));
+
+            return new Color((CRGB)CRGB_colors.GetValue(rand.Next(0, CRGB_colors.Length));
+        }
+
+        public static CRGB getRandomCRGBColor()
+        {
+            Random rand = new Random((int)DateTime.Now.ToBinary());
+
+            Array CRGB_colors = Enum.GetValues(typeof(CRGB));
+
+            return (CRGB)CRGB_colors.GetValue(rand.Next(0, CRGB_colors.Length);
+        }
+
         /// <summary>
         /// There is some voodoo here ... but it works.
         /// Given two colors figure out the color that is X% between them.
@@ -158,14 +176,35 @@ namespace SharpLights
             return Interpolate(color2, color1, (percentage - 50) / 50.0);
         }
 
+        /// <summary>
+        /// todo make fancier fade functions
+        /// </summary>
+        /// <returns>The fade.</returns>
+        /// <param name="color">Color.</param>
+        /// <param name="amount">Amount.</param>
+        public static Color GetFadedColor(Color color,int amount)
+        {
+            byte red, green, blue;
+            red = green = blue = 0;
+            if (color.red > amount)
+                red = (byte)(color.red - amount);
+            if (color.green > amount)
+                green = (byte)(color.green - amount);
+            if (color.blue > amount)
+                blue = (byte)(color.blue - amount);
+
+            return new Color(red, green, blue);
+
+        }
         private static Color Interpolate(Color color1, Color color2, double fraction)
         {
-            double r = Interpolate(color1.red, color2.red, fraction);
-            double g = Interpolate(color1.green, color2.green, fraction);
-            double b = Interpolate(color1.blue, color2.blue, fraction);
+            double r = Math.Max(0,Interpolate(color1.red, color2.red, fraction));
+            double g = Math.Max(0,Interpolate(color1.green, color2.green, fraction));
+            double b = Math.Max(0,Interpolate(color1.blue, color2.blue, fraction));
             return new Color((byte)Math.Round(r),
                              (byte)Math.Round(g),
                              (byte)Math.Round(b));
+
            // return Color.FromArgb((int)Math.Round(r), (int)Math.Round(g), (int)Math.Round(b));
         }
 

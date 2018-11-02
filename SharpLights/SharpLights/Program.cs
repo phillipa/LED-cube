@@ -11,30 +11,87 @@ namespace SharpLights
         static int pixels_per_strip = 27;
         static int frame_size = num_strips * pixels_per_strip;
 
+        static int frames_per_second = 60;//rough fps we are aiming for
+
+        static Palette adbasic = null;
+        static Palette rainbow = null;
+        static Palette purplegreen = null;
+        static Palette purples = null;
+        static Palette blues = null;
+        static Palette greens = null;
+
         public static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            LEDUDPClient luc = new LEDUDPClient("192.168.0.18", 7777, frame_size);
+            LEDUDPClient luc = new LEDUDPClient("192.168.0.100", 7777, frame_size);
 
           
             //testing palette functions.
 
-            CRGB[] palette_colors = {CRGB.Red,CRGB.Green,CRGB.Purple,CRGB.Orange};
+            initPalettes(10);
 
-            Palette test = new Palette(palette_colors,10);
+            Twinkle twinkle = new Twinkle(adbasic, true, 50, frame_size);
 
-            Color[] testFrame = new Color[50 * 8];
-           luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.Coral)));
-            Thread.Sleep(1000);
-         
-
+            luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.AliceBlue)));
+            Thread.Sleep(3000);
             //outputs the palette a few times onto the strips. 
-        
-           luc.sendFrame(sendPaletteFrame(frame_size,test));
+
+            for (int i = 0; i < 500; i++)
+            {
+                luc.sendFrame(twinkle.getFrame());
+                twinkle.iterate();
+                Thread.Sleep(1000/frames_per_second);
+            }
 
             luc.closeSocket();
         }
 
+        /// <summary>
+        /// assemble some of our old favorite palettes
+        /// </summary>
+        public static void initPalettes(int interval_length)
+        {
+
+            CRGB[] adbasic_colors = { CRGB.Purple,
+                CRGB.Blue, CRGB.Chartreuse,
+                CRGB.Green,CRGB.Purple, 
+                CRGB.Blue,CRGB.DarkMagenta};
+
+            adbasic = new Palette(adbasic_colors, interval_length);
+
+            CRGB[] rainbow_colors = {CRGB.Red,
+                CRGB.Orange, CRGB.Yellow, 
+                CRGB.Green, CRGB.Blue,
+                CRGB.Indigo,CRGB.Violet};
+
+            rainbow = new Palette(rainbow_colors, interval_length);
+
+            CRGB[] purplegreen_colors = {CRGB.DarkMagenta,
+                CRGB.DarkOrchid, CRGB.DarkViolet, CRGB.MediumOrchid,
+                CRGB.MediumPurple,CRGB.Purple, CRGB.BlueViolet,
+                CRGB.Blue, CRGB.Blue, CRGB.Blue,
+                CRGB.Chartreuse,CRGB.Green, CRGB.Chartreuse, CRGB.YellowGreen,
+                CRGB.Lime,CRGB.Chartreuse};
+
+            purplegreen = new Palette(purplegreen_colors, interval_length);
+
+            CRGB[] purples_colors = { CRGB.DarkMagenta, CRGB.DarkOrchid,
+                CRGB.DarkViolet,CRGB.BlueViolet};
+
+            purples = new Palette(purples, interval_length);
+           
+            CRGB[] blues_colors = { CRGB.Blue, CRGB.Navy, CRGB.CornflowerBlue,
+                CRGB.DodgerBlue,CRGB.SkyBlue,CRGB.DeepSkyBlue,
+            CRGB.LightSkyBlue};
+
+            blues = new Palette(blues, interval_length);
+
+            CRGB[] greens_colors = {CRGB.LimeGreen, CRGB.Lime,
+                CRGB.Green, CRGB.Chartreuse,CRGB.YellowGreen,
+                CRGB.Chartreuse, CRGB.LimeGreen, CRGB.Lime};
+
+            greens = new Palette(greens_colors, interval_length);
+        }
         //for testing
         public static Byte[] sendSingleColorFrame(int numpixels, Byte[] color)
         {
