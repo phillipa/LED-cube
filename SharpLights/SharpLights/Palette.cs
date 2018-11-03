@@ -62,12 +62,20 @@ namespace SharpLights
             return toreturn;
         }
 
-        //if index is too big return the wrapped around value 
+        /// <summary>
+        /// Gets the color at index i. if index is too big use mod to wrap
+        /// </summary>
+        /// <returns>The color.</returns>
+        /// <param name="index">Index.</param>
         public Color getColor(int index)
         {
             return palette[index%palette_length];
         }
 
+        /// <summary>
+        /// get a random color from the palette
+        /// </summary>
+        /// <returns>The random color.</returns>
         public Color getRandomColor()
         {
 

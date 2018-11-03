@@ -30,21 +30,23 @@ namespace SharpLights
 
             initPalettes(10);
 
-            Twinkle twinkle = new Twinkle(adbasic, true, 50, frame_size);
+            Twinkle twinkle = new Twinkle(rainbow, false,true, 25, frame_size);
 
             luc.sendFrame(sendSingleColorFrame(frame_size, new Color(CRGB.AliceBlue)));
             Thread.Sleep(3000);
             //outputs the palette a few times onto the strips. 
 
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 5000; i++)
             {
-                luc.sendFrame(twinkle.getFrame());
                 twinkle.iterate();
+
+                luc.sendFrame(twinkle.getFrame());
                 Thread.Sleep(1000/frames_per_second);
             }
 
             luc.closeSocket();
         }
+
 
         /// <summary>
         /// assemble some of our old favorite palettes
@@ -78,13 +80,13 @@ namespace SharpLights
             CRGB[] purples_colors = { CRGB.DarkMagenta, CRGB.DarkOrchid,
                 CRGB.DarkViolet,CRGB.BlueViolet};
 
-            purples = new Palette(purples, interval_length);
+            purples = new Palette(purples_colors, interval_length);
            
             CRGB[] blues_colors = { CRGB.Blue, CRGB.Navy, CRGB.CornflowerBlue,
                 CRGB.DodgerBlue,CRGB.SkyBlue,CRGB.DeepSkyBlue,
             CRGB.LightSkyBlue};
 
-            blues = new Palette(blues, interval_length);
+            blues = new Palette(blues_colors, interval_length);
 
             CRGB[] greens_colors = {CRGB.LimeGreen, CRGB.Lime,
                 CRGB.Green, CRGB.Chartreuse,CRGB.YellowGreen,

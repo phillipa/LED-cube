@@ -39,22 +39,23 @@ namespace SharpLights
                 sparks[i] = new Spark();
                 if (rand.Next(0, 100) < p_percent)//randomly decide it's lit
                 {
-                    if (sequential)
+                  //  if (sequential)
                         sparks[i].color = palette.getColor(i);//palette will autowrap for us
-                    else
-                        sparks[i].color = palette.getRandomColor();
-                    sparks[i].fade_rate = rand.Next(5, 50);
+                                                              // else
+                                                              //     sparks[i].color = palette.getRandomColor();
+                    sparks[i].fade_rate = 1;// rand.Next(1, 3);
                     sparks[i].alive = true;
                 }
-                else
+               else
                 {
-                    sparks[i].color = new Color(CRGB.Black);
+                   sparks[i].color = new Color(CRGB.Black);
                     sparks[i].alive = false;
-                }
+               }
 
             }
         }
 
+   
         /// <summary>
         /// return a frame of colors based on the current state of sparks 
         /// </summary>
@@ -73,16 +74,15 @@ namespace SharpLights
             for (int i = 0; i < frame_size;i++)
             {
                 //this spark has faded out
-                if (sparkOut(sparks[i]))
+                if (sparkOut(sparks[i])&&sparks[i].alive)
                 {
                     //there was a spark here before
                     //and we are only spawning where there 
                     //were sparks before
-                    if (sparks[i].alive && static_sparks)
-                        resetSparkColor(i);
+                   
                     //ok, this one is out and we are randomly respawning
                     //on any faded spark. (don't care about aliveness)
-                    else if (rand.Next(0, 100) < percent)
+                   if (rand.Next(0, 100) < percent)
                         resetSparkColor(i);
                 }
                 else
@@ -96,9 +96,10 @@ namespace SharpLights
         /// <param name="spark_index">Spark index.</param>
         private void fadeSpark(int spark_index)
         {
-       
             sparks[spark_index].color = 
                 Color.GetFadedColor(sparks[spark_index].color,sparks[spark_index].fade_rate);
+        //    if (sparkOut(sparks[spark_index]))
+          //      sparks[spark_index].alive = false;
         }
         private void resetSparkColor(int spark_index)
         {
@@ -106,6 +107,7 @@ namespace SharpLights
                 sparks[spark_index].color = palette.getColor(spark_index);//palette will autowrap for us
             else
                 sparks[spark_index].color = palette.getRandomColor();
+            sparks[spark_index].alive = true;
         }
 
         private bool sparkOut(Spark spark){
