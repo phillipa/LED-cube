@@ -8,7 +8,7 @@ LED-cube code.
 
 `netcat -dkl 7777 -u > /dev/ttyACM0 & `
 
-* TeensyUSBReader reads from USB, writes to LEDs.
+* TeensyUSBReader runs on the controller. It reads from USB, writes to LEDs.
 
 ** Notes **
 
