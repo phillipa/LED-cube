@@ -116,7 +116,11 @@ class GlowAgent(object):
 
 	def get_pixels(self):
 		pixels = [[0,0,0]] * self.line_size
- 		pixels[min(0, (self.position-len(self.visualization)/2)): max(self.position-(len(self.visualization)/2), len(self.pixels)-1)] = self.visualization
+ 		pixels[min(0, (self.position-len(self.visualization)/2)): max(self.position-(len(self.visualization)/2), len(pixels)-1)] = self.visualization
+ 		#flatten because artnet sender expects a flat array, not an array of arrays of R, G, B
+ 		flat = [value for rgb in pixels for value in rgb]
+ 		print flat
+ 		return flat
 
 	def move(self):
 		self.position += self.direction
@@ -134,18 +138,8 @@ port = 6454
 ga = GlowAgent(90)
 
 ans = ArtNetSender(host, port)
-# la = LinearAutomaton(300*8*3)
-# la.randomize()
 
-# x= [30,30,30]*300
-
-# # ans.send(x)
-# # for ii in range(0, 300, 10):
-# # 	x[ii*3] = 255
-# # 	ans.send(x)
-# # 	time.sleep(1)
-# for ii in range (100):
-# 	la.gen()
-# 	data = (la.get_data())
-# 	ans.send(data)
-# 	time.sleep(0.1)
+for ii in range(300):
+	ga.move()
+	ans.send(ga.get_pixels())
+ 	time.sleep(0.1)
