@@ -48,4 +48,3 @@ void PGShape::colorSide(CRGB* leds, uint16_t num_leds, byte side_len[], int side
 
   }
 }
-

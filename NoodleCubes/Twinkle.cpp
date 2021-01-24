@@ -41,6 +41,3 @@ void Twinkle::drawTwinkle(CRGB* leds, int idx, CRGBPalette16 palette, TBlendType
 {
   leds[idx] = ColorFromPalette(palette, color, life, blending);
 }
-
-
-

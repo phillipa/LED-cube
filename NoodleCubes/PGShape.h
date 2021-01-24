@@ -9,9 +9,8 @@ class PGShape
     void colorSide(CRGB* leds, uint16_t num_leds, byte side_len[], int side, CRGB p_color);
     void setColor(CRGB p_color);
   private:
-    uint16_t sides[10]; //shape has max of 10 sides
+    uint16_t sides[12]; //shape has max of 12 sides
     CRGB color;
     uint16_t num_sides;
   
 };
-
