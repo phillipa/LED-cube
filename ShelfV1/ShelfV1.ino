@@ -78,8 +78,8 @@ void setup() {
     currentBlending = LINEARBLEND;
 
     //set initial mode and speed
-    mode = SIDES | TWINKLE;
-    updates_per_second = UPDATES_PER_SECOND >> 1; 
+    mode = SIDES ;
+    updates_per_second = UPDATES_PER_SECOND ; 
 
     //init hexagons
     uint16_t sides1[] = {1, 2, 3, 28, 29, 30}; 
@@ -177,9 +177,11 @@ void loop()
   {
     for(int i = 0; i < num_sides; i++)
     {
-      sides[i].setColor(ColorFromPalette(currentPalette,palette_idx[i]++));
+      sides[i].setColor(ColorFromPalette(currentPalette,palette_idx[i%5]));
       sides[i].drawSide(leds); 
     }
+    for(int i = 0; i < 5; i++)
+      palette_idx[i]++;
   }
     if((mode & TWINKLE) > 0)
   {
@@ -271,18 +273,7 @@ void setRandomMode()
     updates_per_second = UPDATES_PER_SECOND;
   }
 
-  if((mode == SIDES || mode == HEXAGON || mode == UNDULATE) & random(0,100) < 50)
-   {
-     if(random(0,100) < 50)
-        mode |= SPRITE;
-     else 
-     {
-        mode |= TWINKLE;
-        updates_per_second = UPDATES_PER_SECOND >> 1;
-        for(int i = 0; i<NUM_LEDS;i++)
-          twinkles[i].setPerc(perc_twinkle_low);//lower percent of twinkles for compose mode 
-     }
-   }
+
 }
 void setRandomPalette()
 {
