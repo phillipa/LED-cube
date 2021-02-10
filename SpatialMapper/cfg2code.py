@@ -86,52 +86,62 @@ def plot_pts(points, color='r'):
     plt.show()
 
 points = []
-corners = config["cube0"]
-led_count = 10
+# corners = config["cube0"]
+led_count = 91
 
-# First, since the config describes unit cubes, multiply by the count of LEDs
-# TODO this is kind of counter-intuitive. Maybe the config should be corner points
-# and how many LEDs are between them.
-scaled_points = [[jj * led_count for jj in ii] for ii in config["cube0"]]
+# # First, since the config describes unit cubes, multiply by the count of LEDs
+# # TODO this is kind of counter-intuitive. Maybe the config should be corner points
+# # and how many LEDs are between them.
+# scaled_points = [[jj * led_count for jj in ii] for ii in config["cube0"]]
 
-# Set up seperate lists for bottom, top, and sides
-bottom = scaled_points[:4]
-top = scaled_points[4:]
-sides = zip(top, bottom)
+# # Set up seperate lists for bottom, top, and sides
+# bottom = scaled_points[:4]
+# top = scaled_points[4:]
+# sides = zip(top, bottom)
 
-# Calculate all the points in them
-for start, end in zip(top, top[1:]+top[:1]):
-    points.extend(gen_coords(start, end, led_count))
-for start, end in zip(bottom, bottom[1:]+bottom[:1]):
-    points.extend(gen_coords(start, end, led_count))
-for start, end in sides:
-    points.extend(gen_coords(start, end, led_count))
+# # Calculate all the points in them
+# for start, end in zip(top, top[1:]+top[:1]):
+#     points.extend(gen_coords(start, end, led_count))
+# for start, end in zip(bottom, bottom[1:]+bottom[:1]):
+#     points.extend(gen_coords(start, end, led_count))
+# for start, end in sides:
+#     points.extend(gen_coords(start, end, led_count))
 
-# Make the points the keys to a hash
-# values will be a tuple of strip and address in that strip
-# Points have to be made tuples to be immutable & hashable keys
-point2addr = {tuple(k):-1 for k in points}
+# # Make the points the keys to a hash
+# # values will be a tuple of strip and address in that strip
+# # Points have to be made tuples to be immutable & hashable keys
+
+point2addr = {}
 
 # Very similar, but for each strip. These points end up in the order that 
 # the LEDs are in the strip, so enumerating this list gets LED numbers
 strip_points = []
 strips = ["strip0", "strip1", "strip2", "strip3"]
+#Strip order matters, this is building a list of strip points in the order they occur 
+#in the cube
 for strip_number, strip_name in enumerate(strips):
     scaled_strip = [[jj * led_count for jj in ii] for ii in config[strip_name]]
     for start, end in zip(scaled_strip, scaled_strip[1:]):
         strip_points.extend(gen_coords( start, end, led_count))
-    for address, point in enumerate(strip_points):
-        point2addr[tuple(point)] = (strip_number, address)
 
+for address, point in enumerate(strip_points):
+    point2addr[tuple(point)] = address
 
-# For checking, dump to yaml;
-with open("test.yaml", 'w') as outfile:
-    yaml.dump(point2addr, outfile)
+output = """
+typedef struct SpatialLED {{
+    double x;
+    double y;
+    double z;
+    int address;
+}} SpatialLED;
 
-# Graph the points that don't have addresses
-# bad_points = []
-# for point, address in point2addr.items():
-#     if address == -1:
-#         bad_points.append(point)
-# if len(bad_points) > 0:
-#     plot_pts(bad_points)
+#define NUM_LEDS {}
+SpatialLED allLEDs[NUM_LEDS] = {{\n
+""".format(len(point2addr))
+
+for point, address in point2addr.items():
+    output += "\t{{ .x = {}, .y = {}, .z = {}, .address = {}}},\n".format(point[0], point[1], point[2], address)
+output += "};"
+
+with open("lut.h", 'w') as outfile:
+    outfile.write(output)
