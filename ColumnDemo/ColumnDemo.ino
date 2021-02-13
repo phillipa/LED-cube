@@ -5,7 +5,9 @@
 #define GRID_WIDTH 51
 #define GRID_HEIGHT 72
 
-#define NUM_LEDS_PER_STRIP (2*((5*GRID_WIDTH) + 33))
+//#define NUM_LEDS_PER_STRIP (2*((5*GRID_WIDTH) + 33))
+//#define NUM_LEDS_PER_STRIP 600
+#define NUM_LEDS_PER_STRIP 480
 #define NUM_STRIPS 8
 #define NUM_LEDS (NUM_STRIPS * NUM_LEDS_PER_STRIP)
 
@@ -25,10 +27,10 @@ int point_y = 0;
 //Move a point
 void update_point()
 {
-  //point_x += 1;
+  point_x += 1;
   point_y += 1;
 
-  //point_x = point_x % GRID_WIDTH;
+  point_x = point_x % GRID_WIDTH;
   point_y = point_y % GRID_HEIGHT;
 }
 
@@ -62,20 +64,55 @@ void loop() {
   //  }
 
 
-  leds[point2addr(point_x, point_y)] = CRGB::Red;
-  //Set a neighborhood around the point to a color
-  leds[point2addr(point_x, (point_y + 1))] = CRGB::Blue;
-  leds[point2addr((point_x + 1), point_y)] = CRGB::Green;
-  leds[point2addr((point_x + 1), (point_y + 1))] = CRGB::Orange;
-  leds[point2addr((point_x + 1), (point_y - 1))] = CRGB::Aqua;
-  
-  leds[point2addr(point_x, (point_y - 1))] = CRGB::Purple;
-  leds[point2addr((point_x - 1), point_y)] = CRGB::Yellow;
-  leds[point2addr((point_x - 1), (point_y - 1))] = CRGB::Magenta;
-  leds[point2addr((point_x - 1), (point_y + 1))] = CRGB::White;
-  
+  // Strip ID, lights the first N leds of each strip
+  //  int strip_idx = 1;
+  //  for (int ii = 0; ii < NUM_LEDS; ii++)
+  //  {
+  //    //End of a strip
+  //    if ((ii % 600) == 0)
+  //    {
+  //      //Light LEDs for the count
+  //      for (int jj = 0; jj < strip_idx; jj++)
+  //      {
+  //        leds[ii + jj] = CRGB::Blue;
+  //      }
+  //
+  //      //Light 15 LEDs at the end
+  //      int end_idx = ii+600;
+  //      for (int jj = end_idx; jj > end_idx - 122; jj--)
+  //      {
+  //        leds[jj] = CRGB::Green;
+  //      }
+  //
+  //      strip_idx += 1;
+  //
+  //    }
+  //  }
 
-  update_point();
+
+    leds[point2addr(point_x, point_y)] = CRGB::Red;
+    //Set a neighborhood around the point to a color
+    leds[point2addr(point_x, (point_y + 1))] = CRGB::Blue;
+    leds[point2addr((point_x + 1), point_y)] = CRGB::Green;
+    leds[point2addr((point_x + 1), (point_y + 1))] = CRGB::Orange;
+    leds[point2addr((point_x + 1), (point_y - 1))] = CRGB::Aqua;
+  
+    leds[point2addr(point_x, (point_y - 1))] = CRGB::Purple;
+    leds[point2addr((point_x - 1), point_y)] = CRGB::Yellow;
+    leds[point2addr((point_x - 1), (point_y - 1))] = CRGB::Magenta;
+    leds[point2addr((point_x - 1), (point_y + 1))] = CRGB::White;
+  
+  
+    update_point();
+
+//  // Try to draw a straight line down the column
+//  for (int ii = 0; ii < NUM_LEDS; ii++)
+//  {
+//    if (ii % GRID_WIDTH == 0) {
+//      leds[ii] = CRGB::Red;
+//    }
+//  }
+
 
   //Output
   LEDS.show();
