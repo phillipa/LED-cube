@@ -129,9 +129,9 @@ for address, point in enumerate(strip_points):
 
 output = """
 typedef struct SpatialLED {{
-    double x;
-    double y;
-    double z;
+    int x;
+    int y;
+    int z;
     int address;
 }} SpatialLED;
 
@@ -143,5 +143,5 @@ for point, address in point2addr.items():
     output += "\t{{ .x = {}, .y = {}, .z = {}, .address = {}}},\n".format(point[0], point[1], point[2], address)
 output += "};"
 
-with open("lut.h", 'w') as outfile:
+with open("cube_lut.h", 'w') as outfile:
     outfile.write(output)
