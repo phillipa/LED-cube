@@ -37,9 +37,15 @@ void Twinkle::updateTwinkle(bool randomize_colors)
   }
 }
 
+void Twinkle::setPerc(uint8_t p_perc)
+{
+  perc = p_perc;
+}
+
 void Twinkle::drawTwinkle(CRGB* leds, int idx, CRGBPalette16 palette, TBlendType blending)
 {
-  leds[idx] = ColorFromPalette(palette, color, life, blending);
+  if(life > 0)//only color live pixels
+    leds[idx] = ColorFromPalette(palette, color, life, blending);
 }
 
 

@@ -7,6 +7,7 @@ class Twinkle
     Twinkle();
     void initTwinkle(uint8_t p_perc, uint8_t p_color);
     void updateTwinkle(bool randomize_colors);
+    void setPerc(uint8_t p_perc);
     void drawTwinkle(CRGB* leds, int idx, CRGBPalette16 palette, TBlendType blending);
     
   private:
