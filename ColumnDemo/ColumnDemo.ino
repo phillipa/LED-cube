@@ -5,8 +5,6 @@
 #define GRID_WIDTH 51
 #define GRID_HEIGHT 72
 
-//#define NUM_LEDS_PER_STRIP (2*((5*GRID_WIDTH) + 33))
-//#define NUM_LEDS_PER_STRIP 600
 #define NUM_LEDS_PER_STRIP 480
 #define NUM_STRIPS 8
 #define NUM_LEDS (NUM_STRIPS * NUM_LEDS_PER_STRIP)
@@ -18,7 +16,7 @@ CRGB leds[NUM_LEDS];
 
 void setup() {
   LEDS.addLeds<OCTOWS2811>(leds, NUM_LEDS_PER_STRIP);
-  LEDS.setBrightness(32);
+  LEDS.setBrightness(20);
 }
 
 int point_x = 0;
@@ -44,75 +42,23 @@ void loop() {
   //Blank the whole strip
   for (int ii = 0; ii < NUM_LEDS; ii++)
   {
-    leds[ii] = CRGB::Black;
+    leds[ii] = CRGB::Blue; //CRGB::Black;
   }
 
-  // Strip ID, lights the first N leds of each strip
-  //  int strip_idx = 1;
-  //  for(int ii = 0; ii < NUM_LEDS; ii++)
-  //  {
-  //    //End of a strip
-  //    if((ii % 600) == 0)
-  //    {
-  //      //Light LEDs for the count
-  //      for(int jj = 0; jj < strip_idx; jj++)
-  //      {
-  //        leds[ii + jj] = CRGB::Blue;
-  //      }
-  //      strip_idx += 1;
-  //    }
-  //  }
+  update_point();
 
-
-  // Strip ID, lights the first N leds of each strip
-  //  int strip_idx = 1;
-  //  for (int ii = 0; ii < NUM_LEDS; ii++)
-  //  {
-  //    //End of a strip
-  //    if ((ii % 600) == 0)
-  //    {
-  //      //Light LEDs for the count
-  //      for (int jj = 0; jj < strip_idx; jj++)
-  //      {
-  //        leds[ii + jj] = CRGB::Blue;
-  //      }
-  //
-  //      //Light 15 LEDs at the end
-  //      int end_idx = ii+600;
-  //      for (int jj = end_idx; jj > end_idx - 122; jj--)
-  //      {
-  //        leds[jj] = CRGB::Green;
-  //      }
-  //
-  //      strip_idx += 1;
-  //
-  //    }
-  //  }
-
-
-    leds[point2addr(point_x, point_y)] = CRGB::Red;
-    //Set a neighborhood around the point to a color
-    leds[point2addr(point_x, (point_y + 1))] = CRGB::Blue;
-    leds[point2addr((point_x + 1), point_y)] = CRGB::Green;
-    leds[point2addr((point_x + 1), (point_y + 1))] = CRGB::Orange;
-    leds[point2addr((point_x + 1), (point_y - 1))] = CRGB::Aqua;
+  //Light the point up
+  leds[point2addr(point_x, point_y)] = CRGB::White;
   
-    leds[point2addr(point_x, (point_y - 1))] = CRGB::Purple;
-    leds[point2addr((point_x - 1), point_y)] = CRGB::Yellow;
-    leds[point2addr((point_x - 1), (point_y - 1))] = CRGB::Magenta;
-    leds[point2addr((point_x - 1), (point_y + 1))] = CRGB::White;
-  
-  
-    update_point();
-
-//  // Try to draw a straight line down the column
-//  for (int ii = 0; ii < NUM_LEDS; ii++)
-//  {
-//    if (ii % GRID_WIDTH == 0) {
-//      leds[ii] = CRGB::Red;
-//    }
-//  }
-
+  //Set a neighborhood around the point to a color
+  leds[point2addr(point_x, (point_y + 1))] = CRGB::Purple;
+  leds[point2addr((point_x + 1), point_y)] = CRGB::Purple;
+  leds[point2addr((point_x + 1), (point_y + 1))] = CRGB::Purple;
+  leds[point2addr((point_x + 1), (point_y - 1))] = CRGB::Purple;
+  leds[point2addr(point_x, (point_y - 1))] = CRGB::Purple;
+  leds[point2addr((point_x - 1), point_y)] = CRGB::Purple;
+  leds[point2addr((point_x - 1), (point_y - 1))] = CRGB::Purple;
+  leds[point2addr((point_x - 1), (point_y + 1))] = CRGB::Purple;
 
   //Output
   LEDS.show();
