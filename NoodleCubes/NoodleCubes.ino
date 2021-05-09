@@ -188,11 +188,15 @@ void loop() {
     counter = 0;
   }
 
+//twinkle mode 
 for(int i = 0; i < NUM_LEDS; i++)
     {
       twinkles[i].updateTwinkle(true);
       twinkles[i].drawTwinkle(leds, i, currentPalette, currentBlending);
     }
+
+
+
 /*Coloring squares 
   for (int i = 0; i < 3; i++)
   {
@@ -204,44 +208,6 @@ for(int i = 0; i < NUM_LEDS; i++)
   palette_idx[0]++;
 */
 
-  //blend top into bottom color
-  /*
-colorSideTwo(2, CRGB::Red, CRGB::Blue);
-colorSideTwo(5, CRGB::Red, CRGB::Blue);
-colorSideTwo(8, CRGB::Red, CRGB::Blue);
-colorSideTwo(11, CRGB::Red, CRGB::Blue);
-*/
-//Red corner opposite blue corner
-/*
-colorSide(1, CRGB::Blue);
-colorSideTwo(2, CRGB::Blue, CRGB::Red);
-colorSide(3, CRGB::Red);
-colorSideTwo(4, CRGB::Blue, CRGB:: Red);
-colorSide(5, CRGB::Red);
-colorSide(6, CRGB::Red);
-colorSideTwo(7, CRGB::Red, CRGB::Blue);
-colorSideTwo(8, CRGB::Blue, CRGB::Red);
-colorSideTwo(9, CRGB::Red, CRGB::Blue);
-colorSide(10, CRGB::Blue);
-colorSide(11, CRGB::Blue);
-colorSideTwo(12, CRGB::Blue, CRGB::Red); */
-//columns are colors blend between them 
-/*
-clearLEDs();
-colorSide(2, CRGB::Red);
-colorSide(5, CRGB::Yellow);
-colorSide(8, CRGB::Green);
-colorSide(11, CRGB::Blue);
-
-colorSideTwo(1, CRGB::Blue, CRGB::Red);
-colorSideTwo(3, CRGB::Red, CRGB::Yellow);
-colorSideTwo(4, CRGB::Red, CRGB::Yellow);
-colorSideTwo(10, CRGB::Green, CRGB::Blue);
-colorSideTwo(6, CRGB::Yellow, CRGB::Green); 
-colorSideTwo(7, CRGB::Yellow, CRGB::Green); 
-colorSideTwo(9, CRGB::Green, CRGB::Blue);
-colorSideTwo(12, CRGB::Blue, CRGB::Red);
-*/
 
   /* CUBE MODE
     cube.drawShape(leds, NUM_LEDS, side_len);
@@ -250,17 +216,17 @@ colorSideTwo(12, CRGB::Blue, CRGB::Red);
   */
 
 
-  /** Sprite mode
-    clearLEDs();
+  /** Sprite mode*/
+  /*  clearLEDs();
     for(int i = 0; i < num_sprites; i++)
     {
       //update color at each time step
       sprites[i].setColor(ColorFromPalette(currentPalette, palette_idx[i]++, BRIGHTNESS, currentBlending));
       sprites[i].updateSprite();
       sprites[i].drawSprite(leds, NUM_LEDS);
-    }
+    }*/
 
-  */
+   
 
   FastLED.show();
   FastLED.delay(1000 / UPDATES_PER_SECOND);
