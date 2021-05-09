@@ -11,8 +11,9 @@
 
 const byte DEBUG = 1;
 const int CONFIG = WS2811_GRB | WS2811_800kHz;
-const int NUM_LEDS_PER_STRIP = 15;
-const int NUM_STRIPS = 4; //lies
+const int NUM_LEDS_PER_STRIP = 273;
+const int NUM_STRIPS = 8; //lies
+const int BRIGHTNESS = 16;
 
 const int FRAME_SIZE = NUM_LEDS_PER_STRIP * NUM_STRIPS;
 const uint8_t DARKEN = 1;
@@ -71,7 +72,7 @@ void setup() {
   
   // Initialize LED array
   LEDS.addLeds<OCTOWS2811>(leds, NUM_LEDS_PER_STRIP);
-  LEDS.setBrightness(32);
+  LEDS.setBrightness(BRIGHTNESS);
   clearLEDs();
   
   // LED startup sequence - this can be whatever
