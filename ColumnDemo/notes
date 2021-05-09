@@ -1,0 +1,53 @@
+
+  // Strip ID, lights the first N leds of each strip
+  //  int strip_idx = 1;
+  //  for(int ii = 0; ii < NUM_LEDS; ii++)
+  //  {
+  //    //End of a strip
+  //    if((ii % 600) == 0)
+  //    {
+  //      //Light LEDs for the count
+  //      for(int jj = 0; jj < strip_idx; jj++)
+  //      {
+  //        leds[ii + jj] = CRGB::Blue;
+  //      }
+  //      strip_idx += 1;
+  //    }
+  //  }
+
+
+  // Strip ID, lights the first N leds of each strip
+  //  int strip_idx = 1;
+  //  for (int ii = 0; ii < NUM_LEDS; ii++)
+  //  {
+  //    //End of a strip
+  //    if ((ii % 600) == 0)
+  //    {
+  //      //Light LEDs for the count
+  //      for (int jj = 0; jj < strip_idx; jj++)
+  //      {
+  //        leds[ii + jj] = CRGB::Blue;
+  //      }
+  //
+  //      //Light 15 LEDs at the end
+  //      int end_idx = ii+600;
+  //      for (int jj = end_idx; jj > end_idx - 122; jj--)
+  //      {
+  //        leds[jj] = CRGB::Green;
+  //      }
+  //
+  //      strip_idx += 1;
+  //
+  //    }
+  //  }
+
+
+//  // Try to draw a straight line down the column
+//  for (int ii = 0; ii < NUM_LEDS; ii++)
+//  {
+//    if (ii % GRID_WIDTH == 0) {
+//      leds[ii] = CRGB::Red;
+//    }
+//  }
+
+
