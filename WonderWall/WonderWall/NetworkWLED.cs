@@ -23,7 +23,7 @@ namespace WonderWall
     {
         private UdpClient udpClient;
      
-        public NetworkHelper(string host, int port)
+        public NetworkHelperWLED(string host, int port)
         {
             udpClient = new UdpClient(host, port);
         }
@@ -40,7 +40,7 @@ namespace WonderWall
                 Byte[] header = {0x04, 0x01, (byte) ((offset + sent) >> 8), (byte) ((offset + sent) & 0xff)};
             
                 // Calculate how many of the pixels are going in this packet
-                int to_send = min(pixels.Length-sent, max_leds);
+                int to_send = Math.Min(pixels.Length-sent, max_leds);
 
                 // Packet data length is header + pixel data
                 Byte[] packet_data = new byte [4 + (to_send * 3)];
