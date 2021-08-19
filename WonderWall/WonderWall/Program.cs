@@ -4,42 +4,64 @@ using System.Threading;
 
 namespace WonderWall
 {
+
     class MainClass
     {
-
+    public enum Mode{
+        Column,
+        Cube,
+        Wall
+    }
         //TODO how does wled do auto-discovery?
+        //Network params
         public const string UDP_HOST = "192.168.2.127";
         public const int UDP_PORT = 21324;
-        public const int FRAME_SIZE = 273 * 8;
 
-        public const int delay = 1000/24; //delay in ms
+        //LED params
+        public const int FRAME_SIZE = 273 * 8;
+        public const int ROW_LEN = 91; //length of tube/row
+        public const int FPS = 24;
+        public const int FRAME_DELAY = 1000/FPS; //delay in ms
+
+        //Which set of LEDs are we using
+        public static Mode CurrentMode = Mode.Cube;
+
+
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Setting up pixel helper and network helper");
-            NetworkHelperWLED nh = new NetworkHelperWLED(UDP_HOST, UDP_PORT);
-            PixelsHelper ph = new PixelsHelper();
-            Palette palette = new Palette();
+        //Get utilities set up + pixel array
+        NetworkHelperWLED nh = new NetworkHelperWLED(UDP_HOST, UDP_PORT);
+        PixelsHelper ph = new PixelsHelper(ROW_LEN);
+        Palette palette = new Palette();
+        Color[] pixels = new Color[FRAME_SIZE];
 
-            Color[] test_pattern = { Color.Aquamarine, Color.Chartreuse, Color.Chocolate, Color.HotPink };
-            Color[] pixels = new Color[FRAME_SIZE];
-            Color[] adbasic = palette.adbasic;
-
-            try
-            {
-                int iter = 0;
-                while (true)
+        Color[] currentPalette = palette.adbasic;
+        int iter=0;
+            try{ 
+                while(true)
                 {
-                    for(int x=0;x<91;x++)
+                    //update the display based on the LED configuration
+                    switch(CurrentMode)
                     {
-                        for (int y = 0; y < 24; y++)
-                            ph.SetOnePixel(adbasic[(y + iter) % adbasic.Length], x, y, false, ref pixels);
+                        case Mode.Column:
+                            ColumnMode(ph,  currentPalette, pixels, iter);
+                            break;
+                        case Mode.Wall:
+                            WallMode(ph,  currentPalette, pixels, iter);
+                            break;
+                        case Mode.Cube:
+                            CubeMode(ph,  currentPalette, pixels, iter);
+                            break;
+                        default:
+                            break;
                     }
-                    nh.Send(pixels);
-                    Thread.Sleep(delay);
 
                     iter++;
-                    iter %= pixels.Length;
+
+                    //send the frame
+                    nh.Send(pixels);
+                    Thread.Sleep(FRAME_DELAY);
                 }
 
             }
@@ -51,6 +73,26 @@ namespace WonderWall
             {
                 nh.Close();
             }
+        }
+
+        static void CubeMode(PixelsHelper ph, Color[] currentPalette, Color[] pixels, int iter){
+
+                int side = 0;
+                for(int i = 0; i < FRAME_SIZE; i+=91)
+                {
+                    ph.SetPixels(currentPalette[(iter) % currentPalette.Length], i, i+91, ref pixels);
+                    side++;
+                }
+             
+            
+        }
+
+        static void WallMode(PixelsHelper ph, Color[] currentPalette, Color[] pixels, int iter){
+           
+        }
+
+        static void ColumnMode(PixelsHelper ph, Color[] currentPalette, Color[] pixels, int iter){
+           
         }
     }
 }

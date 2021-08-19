@@ -8,10 +8,11 @@ namespace WonderWall
     /// </summary>
     public class PixelsHelper
     {
-        private const int ROW_LEN = 91;
+        private int ROW_LEN = 91; //default 91 for LED tubes 
 
-        public PixelsHelper()
+        public PixelsHelper(int p_ROW_LEN)
         {
+                this.ROW_LEN = p_ROW_LEN; 
         }
 
         /// <summary>
@@ -43,6 +44,12 @@ namespace WonderWall
 
         }
 
+        public void SetPixels(Color c, int start_idx, int end_idx, ref Color[] pixels)
+        {
+            for(int i = start_idx; i < end_idx && i < pixels.Length; i++)
+                pixels[i] = c;
+        }
+
         /// <summary>
         /// Fill pixels array with colors from a sequence
         ///
@@ -59,6 +66,7 @@ namespace WonderWall
                 pixels[i] = sequence[(i + start_idx) % sequence.Length];
         }
 
+
         /// <summary>
         /// 2D pixel plotting, deals with the fact that the the lines
         /// go back and forth
@@ -70,18 +78,23 @@ namespace WonderWall
         /// <param name="y"></param>
         /// <param name="clear_all"></param>
         /// <param name="pixels"></param>
-        public void SetOnePixel(Color c, int x, int y, bool clear_all, ref Color[] pixels)
+        public void SetOnePixelWall(Color c, int x, int y, bool clear_all, ref Color[] pixels)
         {
             if (clear_all)
                 SetAllPixels(Color.Black, ref pixels);
 
-            int pixel_idx = GetPixelIdx(x, y);
+            int pixel_idx = GetPixelIdxWall(x, y);
             if (pixel_idx < pixels.Length)
                 pixels[pixel_idx] = c;
 
         }
 
-        public int GetPixelIdx(int x, int y)
+        /***
+        * Function that maps an x/y coordinate into a linear 
+        * coordinate, for the LED-wall (rows change direction 
+        * every 3 rows)
+        ***/
+        private int GetPixelIdxWall(int x, int y)
         {
             int pixel_idx = y * ROW_LEN;
 
@@ -112,7 +125,7 @@ namespace WonderWall
                     int distance = (int)Math.Sqrt(Math.Pow(x - x_center, 2) + Math.Pow(y - y_center, 2));
                     int color_idx = (distance + start_idx) % palette.Length;
 
-                    int pixel_idx = GetPixelIdx(x, y);
+                    int pixel_idx = GetPixelIdxWall(x, y);
 
                     if (pixel_idx < pixels.Length)
                         pixels[pixel_idx] = palette[color_idx];

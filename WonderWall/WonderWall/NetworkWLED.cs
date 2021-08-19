@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Drawing;
+using KinectSensor;
 
 namespace WonderWall
 {
@@ -35,10 +36,16 @@ namespace WonderWall
             
             //Track how many of the pixels have been sent
             int sent = 0;
-            while(sent < pixels.Length){
-                //DNRGB header for this packet
-                Byte[] header = {0x04, 0x01, (byte) ((offset + sent) >> 8), (byte) ((offset + sent) & 0xff)};
             
+            //DNRGB header for this packet
+            Byte[] header = {0x04, 0x01, (byte) ((offset) >> 8), (byte) ((offset) & 0xff)};
+                
+            while(sent < pixels.Length){
+                //Update header if needed
+                if(sent > 0){
+                    header[2] = (byte) ((offset + sent-1) >> 8);
+                    header[3] = (byte) ((offset + sent-1) & 0xff);
+                }
                 // Calculate how many of the pixels are going in this packet
                 int to_send = Math.Min(pixels.Length-sent, max_leds);
 
