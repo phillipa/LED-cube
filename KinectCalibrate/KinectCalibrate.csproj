@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Code\libfreenect\wrappers\csharp\src\lib\VS2010\freenectdotnet.csproj" />
+    <ProjectReference Include="..\WonderWall\WonderWall\WonderWall.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
