@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Drawing;
-using KinectSensor;
 
 namespace WonderWall
 {
