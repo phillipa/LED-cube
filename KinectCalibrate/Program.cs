@@ -60,6 +60,58 @@ namespace KinectCalibrate
             latestVideo = e.Data;
 		}
     }
+
+
+    class BackgroundSubtracter{
+
+        UInt16[] background;
+
+        public BackgroundSubtracter(UInt16[] bg)
+        {
+            background = bg;
+        }
+
+        public int AddBackground(UInt16[] new_bg)
+        {
+            if(new_bg.Length != background.Length)
+            {
+                Console.WriteLine("New background is the wrong size");
+            }
+
+            int updates = 0;
+            for(int idx = 0; idx < background.Length; idx++)
+            {
+                //Kinect data is 0 if there was no return, so replace no-return with updated value
+                if((background[idx] == 0) && (new_bg[idx] != 0))
+                {
+                    background[idx] = new_bg[idx];
+                    updates+=1;
+                }
+                //Otherwise, get the (integer) average
+                else if ((background[idx] != 0) && (new_bg[idx] !=0)){
+                    background[idx] = (UInt16)((background[idx]/2) + (new_bg[idx]/2));
+                }
+            }
+            return updates;
+        }
+
+        public UInt16[] SubtractBackground(UInt16[] image, UInt16 threshold = 0)
+        {
+            if(image.Length != background.Length)
+            {
+                Console.WriteLine("Image is the wrong size");
+            }
+
+            for(int idx = 0; idx < background.Length; idx++)
+            {
+                image[idx] = (UInt16)Math.Max(0, image[idx] - (background[idx] + threshold));
+            }
+            //TODO is this a copy or reference semantics language?
+            return image;
+        }
+
+    }
+    
     class Program
     {
         //TODO how does wled do auto-discovery?
@@ -68,6 +120,28 @@ namespace KinectCalibrate
         public const int UDP_PORT = 21324;
         public const int ROW_LEN = 91; //length of tube/row
         public const int FRAME_SIZE = ROW_LEN * 3 * 4;
+
+
+        static void DumpImage(UInt16[] data, String name)
+        {
+            //Assumes data is a 640x480 image (depth data from the Kinect)
+            int width = 640;
+            int height = 480;
+            Bitmap img = new Bitmap(width, height);
+            int x, y;
+            
+            for(x = 0; x < width; x++)
+            {        
+                for(y = 0; y < height; y++)
+                {
+                    int index = (width*y + x);
+                    int value = (int)(data[index]* (Math.Pow(2, 8)/Math.Pow(2, 11)));
+                    Color pxColor = Color.FromArgb(value, value, value);
+                    img.SetPixel(x, y, pxColor);
+                }
+            }
+            img.Save(name);
+        }
 
         static void Main(string[] args)
         {
@@ -99,38 +173,98 @@ namespace KinectCalibrate
                 new int[] {ROW_LEN*9, ROW_LEN*11, (ROW_LEN*11)+1}
             };
 
+
+            //Get a few frames of depth and create a background subtractor out of them
+            while(kfg.GrabDepth() == null){}
+            BackgroundSubtracter bg_sub = new BackgroundSubtracter(convertDepthToUInts(kfg.GrabDepth().Data));
+            for(int ii = 0; ii < 10; ii++)
+            {
+                int change_count = bg_sub.AddBackground(convertDepthToUInts(kfg.GrabDepth().Data));
+                Console.WriteLine("Update {0} changed {1} px", ii, change_count);
+                Thread.Sleep(100);
+            }
+
+            //Get a new depth image
+            UInt16[] depth_img = convertDepthToUInts(kfg.GrabDepth().Data);
+            DumpImage(depth_img, "depth_img.png");
+            UInt16[] no_bg = bg_sub.SubtractBackground(depth_img);
+            DumpImage(no_bg, "bg_subtraced.png");
+
             BaseDataMap last_depth, curr_depth;
+            UInt16[] last_depth_uint, curr_depth_uint;
             last_depth = kfg.GrabDepth();
+            last_depth_uint = null;//convertDepthToUInts(last_depth.Data);
+            curr_depth_uint = null;
+            Color[] p_help = new Color[640*480*2];
+            int num_samples = 0;
+            int count_diff = 0;
             while(true)
             {
-                curr_depth = kfg.GrabDepth();
+                curr_depth = kfg.GrabDepth();       
+                if(curr_depth != null)
+                    curr_depth_uint = convertDepthToUInts(curr_depth.Data);
                 //Thread.Sleep(250);
                 //depth2 = kfg.GrabDepth();
         
                 if((last_depth != null) && (curr_depth != null))
                 {
+
+                    int num_diff = 0;
+                    for(int i = 0; i< curr_depth_uint.Length;i++)
+                    {
+                        if(curr_depth_uint[i]!=last_depth_uint[i])
+                            num_diff++;
+                    }
+
+                    Console.WriteLine("Num different "+num_diff+ " out of "+last_depth_uint.Length);
                     //Basic byte diff
-                    int count_diff = 0;
-                    int p_idx = 0;
+                    
+                    /*int p_idx = 0;
                     for(int i = 0; i < curr_depth.CaptureMode.Size; i+=3){
                       
                       int argb = curr_depth.Data[i];
                         argb |= curr_depth.Data[i+1]<<8;
                         argb |= curr_depth.Data[i+2]<<16;
-                        if(p_idx < pixels.Length){
-                            if(pixels[p_idx] != Color.FromArgb(argb))
-                                count_diff++;
-                            pixels[p_idx] = Color.FromArgb((int)argb);
+                        if(p_idx < p_help.Length){
+                            if(p_help[p_idx] != Color.FromArgb(argb))
+                            {    count_diff++;
+                                    p_help[p_idx] = Color.FromArgb((int)argb);
+                            }
                         }
                         p_idx++;
                         
                     }
-                    if(count_diff > 0)
-                        Console.WriteLine("{0} of {1} changed", count_diff, curr_depth.CaptureMode.Size);
+                   // if(count_diff > 0)
+                      //  Console.WriteLine("{0} of {1} changed", count_diff, curr_depth.CaptureMode.Size);
+                        num_samples++;
+                        if(num_samples == 24)
+                        {
+                            Console.WriteLine("Average of {0} of {1} changes in 1s ", (count_diff/num_samples), curr_depth.CaptureMode.Size);
+                       
+                            double avg_perc = 100*((double)(count_diff/num_samples)/(double)(curr_depth.CaptureMode.Size/3));
+                            
+                            int pixels_per_side = (int)Math.Round((double)(91*(avg_perc/100)));
+                            Console.WriteLine("avg perc "+avg_perc+" pixels per side "+ pixels_per_side);
+                            for(int p = 0; p<pixels.Length;p++)
+                                pixels[p] = Color.Black;
+                            for(int p = 0; p<pixels.Length;p+=91)
+                            {
+                                for(int side_pix=0; side_pix<pixels_per_side; side_pix++)
+                                {
+                                    if((p+side_pix)<pixels.Length)
+                                        pixels[p+side_pix] = Color.Aqua;
+                                }
+                            }
+                            count_diff=0;
+                            num_samples=0;
+                        }
+                    */
                     nh.Send(pixels);
                 }
 
                 last_depth = curr_depth;
+                last_depth_uint = curr_depth_uint;
+                Thread.Sleep(1000/24); //24 fps
             }
             // while(true){    
             //     foreach(int[] corner in corners){
@@ -151,6 +285,27 @@ namespace KinectCalibrate
             //         BaseDataMap redOffData = kfg.GrabColor();
             //     }
             // }            
+        }
+
+        static UInt16[] convertDepthToUInts(byte[] depthData)
+        {
+            UInt16[] res = new UInt16[(int)Math.Floor((double)(depthData.Length/2))];
+            int res_idx = 0;
+            //convert depth bytes to UINT16 here. 
+            for(int i = 0; i<depthData.Length; i+=2)
+            {
+                UInt16 curr = (UInt16)(depthData[i] & 0x7); //get lower 3 bits of first byte
+                curr <<= 8;//shift the byte over for the next byte
+                curr |= depthData[i+1];
+                if(res_idx<res.Length)
+                    res[res_idx] = curr;
+                else
+                    Console.WriteLine("this should not happen");
+                res_idx++;
+
+            }
+
+            return res;
         }
     }
 }
