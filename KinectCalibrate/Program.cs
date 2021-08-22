@@ -83,14 +83,14 @@ namespace KinectCalibrate
             int updates = 0;
             for(int idx = 0; idx < background.Length; idx++)
             {
-                //Kinect data is 0 if there was no return, so replace no-return with updated value
-                if((background[idx] == 0) && (new_bg[idx] != 0))
+                //Kinect data is 0x07 in high byte if there was no return, so replace no-return with updated value
+                if((background[idx] >> 8 == 0x07) && (new_bg[idx] >> 8 == 0x03))
                 {
                     background[idx] = new_bg[idx];
                     updates+=1;
                 }
                 //Otherwise, get the (integer) average
-                else if ((background[idx] != 0) && (new_bg[idx] !=0)){
+                else if ((background[idx] >> 8 == 0x07) && (new_bg[idx] >> 8 == 0x07)){
                     background[idx] = (UInt16)(((double)background[idx]/2 + (double)new_bg[idx]/2));
                 }
             }
@@ -106,6 +106,11 @@ namespace KinectCalibrate
 
             for(int idx = 0; idx < background.Length; idx++)
             {
+                //Don't use no-return values
+                if(image[idx] >> 8 == 0x03)
+                {
+                    image[idx] = 0;
+                }
                 image[idx] = (UInt16)Math.Max(0, image[idx] - (background[idx] + threshold));
             }
             //TODO is this a copy or reference semantics language?
@@ -139,9 +144,21 @@ namespace KinectCalibrate
                 {
                     int index = (width*y + x);
                     
-                    int value = (int)((double) data[index] * (double)Math.Pow(2,8)/(double)Math.Pow(2, 11));
+                    //Raw depth, quantized down from 11 bits to 8
+                    int blue = (int)((double) data[index] * (double)Math.Pow(2,8)/(double)Math.Pow(2, 11));
                     
-                    Color pxColor = Color.FromArgb(0, 0, value);
+                    int red = 0;
+                    int green = 0;
+                    // For detecting no-return areas
+                    // if(data[index] >> 8 == 0x07)
+                    // {
+                    //     red = 255;
+                    // }
+                    // if(data[index] >> 8 == 0x03)
+                    // {
+                    //     green = 255;
+                    // }
+                    Color pxColor = Color.FromArgb(red, green, blue);
                     img.SetPixel(x, y, pxColor);
                 }
             }
@@ -195,8 +212,11 @@ namespace KinectCalibrate
             UInt16[] no_bg = bg_sub.SubtractBackground(depth_img);
             DumpImage(no_bg, "bg_subtracted.png");
 
-            return;
-             
+            //System.IO.File.WriteAllBytes("raw_depth.bin", kfg.GrabDepth().Data);
+
+            //DumpImage(convertDepthToUInts(kfg.GrabDepth().Data), "prefix_test.png"); 
+            System.Environment.Exit(0);
+
             BaseDataMap last_depth, curr_depth;
             UInt16[] last_depth_uint, curr_depth_uint;
             last_depth = kfg.GrabDepth();
@@ -205,6 +225,7 @@ namespace KinectCalibrate
             Color[] p_help = new Color[640*480*2];
             int num_samples = 0;
             int count_diff = 0;
+            
             while(true)
             {
                 curr_depth = kfg.GrabDepth();       
