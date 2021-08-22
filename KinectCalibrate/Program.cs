@@ -3,6 +3,8 @@ using freenect;
 using System.Threading;
 using WonderWall;
 using System.Drawing;
+using System.Collections.Generic;
+
 
 namespace KinectCalibrate
 {
@@ -89,7 +91,7 @@ namespace KinectCalibrate
                 }
                 //Otherwise, get the (integer) average
                 else if ((background[idx] != 0) && (new_bg[idx] !=0)){
-                    background[idx] = (UInt16)((background[idx]/2) + (new_bg[idx]/2));
+                    background[idx] = (UInt16)(((double)background[idx]/2 + (double)new_bg[idx]/2));
                 }
             }
             return updates;
@@ -121,13 +123,14 @@ namespace KinectCalibrate
         public const int ROW_LEN = 91; //length of tube/row
         public const int FRAME_SIZE = ROW_LEN * 3 * 4;
 
-
         static void DumpImage(UInt16[] data, String name)
         {
+
             //Assumes data is a 640x480 image (depth data from the Kinect)
             int width = 640;
             int height = 480;
             Bitmap img = new Bitmap(width, height);
+            
             int x, y;
             
             for(x = 0; x < width; x++)
@@ -135,8 +138,10 @@ namespace KinectCalibrate
                 for(y = 0; y < height; y++)
                 {
                     int index = (width*y + x);
-                    int value = (int)(data[index]* (Math.Pow(2, 8)/Math.Pow(2, 11)));
-                    Color pxColor = Color.FromArgb(value, value, value);
+                    
+                    int value = (int)((double) data[index] * (double)Math.Pow(2,8)/(double)Math.Pow(2, 11));
+                    
+                    Color pxColor = Color.FromArgb(0, 0, value);
                     img.SetPixel(x, y, pxColor);
                 }
             }
@@ -188,12 +193,14 @@ namespace KinectCalibrate
             UInt16[] depth_img = convertDepthToUInts(kfg.GrabDepth().Data);
             DumpImage(depth_img, "depth_img.png");
             UInt16[] no_bg = bg_sub.SubtractBackground(depth_img);
-            DumpImage(no_bg, "bg_subtraced.png");
+            DumpImage(no_bg, "bg_subtracted.png");
 
+            return;
+             
             BaseDataMap last_depth, curr_depth;
             UInt16[] last_depth_uint, curr_depth_uint;
             last_depth = kfg.GrabDepth();
-            last_depth_uint = null;//convertDepthToUInts(last_depth.Data);
+            last_depth_uint = convertDepthToUInts(last_depth.Data);
             curr_depth_uint = null;
             Color[] p_help = new Color[640*480*2];
             int num_samples = 0;
@@ -294,9 +301,9 @@ namespace KinectCalibrate
             //convert depth bytes to UINT16 here. 
             for(int i = 0; i<depthData.Length; i+=2)
             {
-                UInt16 curr = (UInt16)(depthData[i] & 0x7); //get lower 3 bits of first byte
+                UInt16 curr = (UInt16)(depthData[i+1] & 0x7); //get lower 3 bits of first byte
                 curr <<= 8;//shift the byte over for the next byte
-                curr |= depthData[i+1];
+                curr |= depthData[i];
                 if(res_idx<res.Length)
                     res[res_idx] = curr;
                 else
