@@ -31,13 +31,11 @@ namespace KinectCalibrate
             {
                 while (true)
                 {
-                    //Console.Write(".");
                     // Update status of accelerometer/motor etc.
                     kinect.UpdateStatus();
 
                     // Process any pending events.
                     Kinect.ProcessEvents();
-                    //Console.Write("-");
                 }
             }));
             t.Start();
@@ -45,23 +43,19 @@ namespace KinectCalibrate
 
         public BaseDataMap GrabDepth()
         {
-            //Console.WriteLine("GrabDepth called");
             return latestDepth;
         }
 
         public BaseDataMap GrabColor()
         {
-            //Console.WriteLine("GrabColor called");
             return latestVideo;
         }
         private void HandleKinectDepthCameraDataReceived(object sender, BaseCamera.DataReceivedEventArgs e)
         {
-            //Console.WriteLine("Depth data received at {0} is {1} @ {2}FPS", e.Timestamp, e.Data.CaptureMode, e.Data.CaptureMode.FrameRate);
             latestDepth = e.Data;
         }
         private void HandleKinectVideoCameraDataReceived(object sender, BaseCamera.DataReceivedEventArgs e)
         {
-            //Console.WriteLine("Video data received at {0} is {1} @ {2}FPS", e.Timestamp, e.Data.CaptureMode, e.Data.CaptureMode.FrameRate);
             latestVideo = e.Data;
         }
     }
@@ -139,15 +133,7 @@ namespace KinectCalibrate
 
                     int red = 0;
                     int green = 0;
-                    // For detecting no-return areas
-                    // if(data[index] >> 8 == 0x07)
-                    // {
-                    //     red = 255;
-                    // }
-                    // if(data[index] >> 8 == 0x03)
-                    // {
-                    //     green = 255;
-                    // }
+
                     Color pxColor = Color.FromArgb(red, green, blue);
                     img.SetPixel(x, y, pxColor);
                 }
@@ -191,10 +177,8 @@ namespace KinectCalibrate
             for (int ii = 0; ii < 10; ii++)
             {
                 int change_count = bg_sub.AddBackground(convertDepthToUInts(kfg.GrabDepth().Data));
-                Console.WriteLine("Update {0} changed {1} px", ii, change_count);
                 Thread.Sleep(100);
             }
-
 
             Color[] p_help = new Color[640 * 480 * 2];
             while (true)
@@ -210,7 +194,23 @@ namespace KinectCalibrate
                 average = average / curr_depth.Length;
 
                 Console.WriteLine("Average depth value with background removed: {0}", average);
-                Thread.Sleep(1000 / 24); //24 fps
+
+                Random random = new Random();
+                for (int ii = 0; ii < p_help.Length; ii++)
+                {
+                    //Saw values in the range 10-400ish when I was testing
+                    if (random.Next(10, 200) < average)
+                    {
+                        p_help[ii] = Color.Magenta;
+                    }
+                    else
+                    {
+                        p_help[ii] = Color.Black;
+                    }
+                }
+                nh.Send(p_help);
+
+                Thread.Sleep(100);
             }
             // while(true){    
             //     foreach(int[] corner in corners){
