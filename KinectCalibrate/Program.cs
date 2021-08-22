@@ -83,13 +83,13 @@ namespace KinectCalibrate
             int updates = 0;
             for(int idx = 0; idx < background.Length; idx++)
             {
-                //Kinect data is 0x07 in high byte if there was no return, so replace no-return with updated value
+                Kinect data is 0x07 in high byte if there was no return, so replace no-return with updated value
                 if((background[idx] >> 8 == 0x07) && (new_bg[idx] >> 8 == 0x03))
                 {
                     background[idx] = new_bg[idx];
                     updates+=1;
                 }
-                //Otherwise, get the (integer) average
+                Otherwise, get the (integer) average
                 else if ((background[idx] >> 8 == 0x07) && (new_bg[idx] >> 8 == 0x07)){
                     background[idx] = (UInt16)(((double)background[idx]/2 + (double)new_bg[idx]/2));
                 }
@@ -110,6 +110,7 @@ namespace KinectCalibrate
                 if(image[idx] >> 8 == 0x03)
                 {
                     image[idx] = 0;
+                    continue;
                 }
                 image[idx] = (UInt16)Math.Max(0, image[idx] - (background[idx] + threshold));
             }
