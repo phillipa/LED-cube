@@ -3,8 +3,7 @@ using freenect;
 using System.Threading;
 using WonderWall;
 using System.Drawing;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 
 namespace KinectCalibrate
 {
@@ -151,7 +150,9 @@ namespace KinectCalibrate
                 return;
             }
 
+            Console.WriteLine("Setting up network...");
             NetworkHelperWLED nh = new NetworkHelperWLED(UDP_HOST, UDP_PORT);
+            Console.WriteLine("Setting up frame grabber...");
             KinectFrameGrabber kfg = new KinectFrameGrabber();
 
             Color[] pixels = new Color[FRAME_SIZE];
@@ -160,19 +161,24 @@ namespace KinectCalibrate
                 pixels[idx] = Color.Black;
             }
 
-            int[][] corners = {
-                new int[] {0, ROW_LEN*10, (ROW_LEN*10) +1},
-                new int[] {ROW_LEN-1, ROW_LEN, ROW_LEN*3},
-                new int[] {ROW_LEN*2, (ROW_LEN*2)+1, (ROW_LEN*12)-1 },
-                new int[] {(ROW_LEN*3)-1, ROW_LEN*5, (ROW_LEN*5)-1},
-                new int[] {(ROW_LEN*4)-1, (ROW_LEN*4)+1, (ROW_LEN*6)+1},
-                new int[] {ROW_LEN*6, ROW_LEN*8, (ROW_LEN*8)+1},
-                new int[] {ROW_LEN*7, (ROW_LEN*7)+1, (ROW_LEN*9)+1},
-                new int[] {ROW_LEN*9, ROW_LEN*11, (ROW_LEN*11)+1}
-            };
+            // int[][] corners = {
+            //     new int[] {0, ROW_LEN*10, (ROW_LEN*10) +1},
+            //     new int[] {ROW_LEN-1, ROW_LEN, ROW_LEN*3},
+            //     new int[] {ROW_LEN*2, (ROW_LEN*2)+1, (ROW_LEN*12)-1 },
+            //     new int[] {(ROW_LEN*3)-1, ROW_LEN*5, (ROW_LEN*5)-1},
+            //     new int[] {(ROW_LEN*4)-1, (ROW_LEN*4)+1, (ROW_LEN*6)+1},
+            //     new int[] {ROW_LEN*6, ROW_LEN*8, (ROW_LEN*8)+1},
+            //     new int[] {ROW_LEN*7, (ROW_LEN*7)+1, (ROW_LEN*9)+1},
+            //     new int[] {ROW_LEN*9, ROW_LEN*11, (ROW_LEN*11)+1}
+            // };
 
             //Get a few frames of depth and create a background subtractor out of them
-            while (kfg.GrabDepth() == null) { }
+            Console.WriteLine("Waiting for camera data to be available...");
+            while (kfg.GrabDepth() == null)
+            {
+                Thread.Sleep(100);
+            }
+            Console.WriteLine("Calculating background subtraction...");
             BackgroundSubtracter bg_sub = new BackgroundSubtracter(convertDepthToUInts(kfg.GrabDepth().Data));
             for (int ii = 0; ii < 10; ii++)
             {
@@ -180,9 +186,11 @@ namespace KinectCalibrate
                 Thread.Sleep(100);
             }
 
-            Color[] p_help = new Color[640 * 480 * 2];
+            Console.WriteLine("Starting main loop...");
+            Stopwatch frame_sw = new Stopwatch();
             while (true)
             {
+                frame_sw.Start();
                 UInt16[] curr_depth = convertDepthToUInts(kfg.GrabDepth().Data);
                 curr_depth = bg_sub.SubtractBackground(curr_depth);
 
@@ -196,21 +204,25 @@ namespace KinectCalibrate
                 Console.WriteLine("Average depth value with background removed: {0}", average);
 
                 Random random = new Random();
-                for (int ii = 0; ii < p_help.Length; ii++)
+                for (int ii = 0; ii < pixels.Length; ii++)
                 {
                     //Saw values in the range 10-400ish when I was testing
                     if (random.Next(10, 200) < average)
                     {
-                        p_help[ii] = Color.Magenta;
+                        pixels[ii] = Color.Magenta;
                     }
                     else
                     {
-                        p_help[ii] = Color.Black;
+                        pixels[ii] = Color.Black;
                     }
                 }
-                nh.Send(p_help);
+                nh.Send(pixels);
 
-                Thread.Sleep(100);
+                frame_sw.Stop();
+                //Cast from long to int is fine because the max is like 42. 
+                //42 is because 24 fps = 24/1000 = 41.66667ms/frame
+                //Thread.Sleep((int)Math.Max(0, 42 - frame_sw.ElapsedMilliseconds));
+                Thread.Sleep((int)Math.Max(0, 100 - frame_sw.ElapsedMilliseconds));
             }
             // while(true){    
             //     foreach(int[] corner in corners){
