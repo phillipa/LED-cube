@@ -75,22 +75,22 @@ class Visualiser:
     def __init__(self):
         self.fig = plt.figure()
         self.ax = plt.axes(projection='3d')
-        self.ln, = plt.plot([], [], 'ro')
-        self.max_x = 300
-        self.max_y = 300
-        self.max_z = 300
-    
+        self.xdata = []
+        self.ydata = []
+        self.zdata = []
+        self.scatter = self.ax.scatter3D(self.xdata, self.ydata, self.zdata)
+
     def plot_init(self):
-        self.ax.set_xlim(0, self.max_x)
-        self.ax.set_ylim(0, self.max_y)
-        return self.ln  
+        #self.ax.set_xlim(0, self.max_x)
+        #self.ax.set_ylim(0, self.max_y)
+        pass #return self.ln  
 
     def update_plot(self, frame):
-        zdata = 15 * np.random.random(100)
-        xdata = np.sin(zdata) + 0.1 * np.random.randn(100)
-        ydata = np.cos(zdata) + 0.1 * np.random.randn(100)
-        self.ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens')
-        return self.ln
+        self.zdata = 15 * np.random.random(100)
+        self.xdata = np.sin(self.zdata) + 0.1 * np.random.randn(100)
+        self.ydata = np.cos(self.zdata) + 0.1 * np.random.randn(100)
+        self.scatter._offsets3d = (self.xdata, self.ydata, self.zdata)
+        #return self.ln
     
     # def lidar_callback(self, scan):
     #     scan_parameters = [scan.angle_min, scan.angle_max, scan.angle_increment]
