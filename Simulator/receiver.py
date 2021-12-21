@@ -89,7 +89,10 @@ class Visualiser:
         self.zdata = 15 * np.random.random(100)
         self.xdata = np.sin(self.zdata) + 0.1 * np.random.randn(100)
         self.ydata = np.cos(self.zdata) + 0.1 * np.random.randn(100)
+        colors = [np.random.random(3) for _ in self.zdata]
         self.scatter._offsets3d = (self.xdata, self.ydata, self.zdata)
+        self.scatter._facecolor3d = colors
+        
         #return self.ln
     
     # def lidar_callback(self, scan):
