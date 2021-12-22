@@ -15,6 +15,7 @@
 # 6 + n*3 	Blue Value
 
 import socket
+import threading
 import asyncio
 from mpl_toolkits import mplot3d
 import os, random
@@ -35,7 +36,7 @@ async def write_messages():
     while True:
         # Make up a starting index
         # TODO this has a hard limit on the max index
-        start_idx = random.randint(0, 480)
+        start_idx = random.randint(0, 479)
         end_idx = min(480, start_idx + random.randint(1, 480))
         length = end_idx - start_idx
 
@@ -101,14 +102,18 @@ class Visualiser:
         if self.inQueue is not None:
             try:
                 start_idx, color_list = self.inQueue.get(False)
+
                 #Colors are RGB 0-1 floating point
-                for offset, color in enumerate(color_list):
-                    self.colors[start_idx + offset] = [c/255 for c in color]
+                offset = 0
+                while offset < len(color_list):
+                    chunk = color_list[offset: offset + 3]
+                    self.colors[start_idx + int(offset/3)] = [c/255 for c in chunk]
+                    offset += 3
 
                 self.scatter._facecolor3d = self.colors
                 self.scatter._edgecolor3d = self.colors
         
-            except queue.Queue.Empty:
+            except queue.Empty:
                 return
         
 if __name__ == "__main__":
@@ -121,7 +126,10 @@ if __name__ == "__main__":
     
     vis = Visualiser(q, file)
     ani = FuncAnimation(vis.fig, vis.update_plot, init_func=vis.plot_init)
-    plt.show(block=True)
+    
+    #TODO using threading and asyncio in the same program seems fishy
+    pltThread = threading.Thread(target=plt.show, kwargs={"block":True})
+    pltThread.start()
 
     loop.run_until_complete(write_messages())
     loop.run_forever()
