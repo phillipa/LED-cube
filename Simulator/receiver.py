@@ -2,9 +2,9 @@
 
 # This implements a receiver for the WLED UDP protocol (DNRGB type)
 # The idea is that you implement against a simulator that uses
-# this receiver and updates some sort of visual display, and then 
-# for production you use the real LED gear over e.g. wifi. 
-# 
+# this receiver and updates some sort of visual display, and then
+# for production you use the real LED gear over e.g. wifi.
+#
 # DNRGB packets are laid out like so:
 # Byte      Meaning
 # ----      -------
@@ -18,17 +18,19 @@ import socket
 import asyncio
 from mpl_toolkits import mplot3d
 import os, random
+import yaml
 import struct
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 
-HOST, PORT = 'localhost', 4321
+HOST, PORT = "localhost", 4321
+
 
 def send_test_message(message):
-    sock = socket.socket(socket.AF_INET,  # Internet
-                         socket.SOCK_DGRAM)  # UDP
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
     sock.sendto(message, (HOST, PORT))
+
 
 async def write_messages():
     while True:
@@ -38,16 +40,16 @@ async def write_messages():
         end_idx = min(480, start_idx + random.randint(1, 480))
         length = end_idx - start_idx
 
-        # Pack format is unsigned short (2 bytes) followed by R, G, B 
+        # Pack format is unsigned short (2 bytes) followed by R, G, B
         # bytes for each pixel
-        pckfmt = "H{}B".format(length*3)
+        pckfmt = "H{}B".format(length * 3)
 
         # Generate an array of RGB values for each pixel
         data = []
         for ii in range(length):
-            data.append(random.randint(0,255))
-            data.append(random.randint(0,255))
-            data.append(random.randint(0,255))
+            data.append(random.randint(0, 255))
+            data.append(random.randint(0, 255))
+            data.append(random.randint(0, 255))
 
         msg = struct.pack(pckfmt, start_idx, *data)
 
@@ -74,41 +76,38 @@ class DNRGBProtocol(asyncio.DatagramProtocol):
 class Visualiser:
     def __init__(self):
         self.fig = plt.figure()
-        self.ax = plt.axes(projection='3d')
-        self.xdata = []
-        self.ydata = []
-        self.zdata = []
-        self.scatter = self.ax.scatter3D(self.xdata, self.ydata, self.zdata)
+        self.ax = plt.axes(projection="3d")
+        self.data = None
+        self.colors = None
+        
 
-    def plot_init(self):
-        #self.ax.set_xlim(0, self.max_x)
-        #self.ax.set_ylim(0, self.max_y)
-        pass #return self.ln  
+    def plot_init(self, config="./column.yml"):
+        self.data = yaml.load(open(config, "r"))
+        xdata = []
+        ydata = []
+        zdata = []
+        for idx in self.data.keys():
+            x, y, z = self.data[idx]
+            xdata.append(x)
+            ydata.append(y)
+            zdata.append(z)
+        self.scatter = self.ax.scatter3D(xdata, ydata, zdata)
 
     def update_plot(self, frame):
-        self.zdata = 15 * np.random.random(100)
-        self.xdata = np.sin(self.zdata) + 0.1 * np.random.randn(100)
-        self.ydata = np.cos(self.zdata) + 0.1 * np.random.randn(100)
-        colors = [np.random.random(3) for _ in self.zdata]
-        self.scatter._offsets3d = (self.xdata, self.ydata, self.zdata)
+        colors = [np.random.random(3) for _ in self.data.keys()]
         self.scatter._facecolor3d = colors
-        
-        #return self.ln
-    
-    # def lidar_callback(self, scan):
-    #     scan_parameters = [scan.angle_min, scan.angle_max, scan.angle_increment]
-    #     scan_ranges = np.array(scan.ranges)
-    #     self.mapper.update_map(self.pose, scan_ranges, scan.angle_min, scan.angle_increment)
+        pass
 
-if __name__ == '__main__':
-    #loop = asyncio.get_event_loop()
-    #t = loop.create_datagram_endpoint(DNRGBProtocol, local_addr=('0.0.0.0', PORT))
+
+if __name__ == "__main__":
+    # loop = asyncio.get_event_loop()
+    # t = loop.create_datagram_endpoint(DNRGBProtocol, local_addr=('0.0.0.0', PORT))
 
     vis = Visualiser()
     ani = FuncAnimation(vis.fig, vis.update_plot, init_func=vis.plot_init)
 
     plt.show(block=True)
-    #loop.run_until_complete(t) # Server starts listening
-    #loop.run_until_complete(write_messages()) # Start writing messages (or running tests)
-     
-    #loop.run_forever()
+    # loop.run_until_complete(t) # Server starts listening
+    # loop.run_until_complete(write_messages()) # Start writing messages (or running tests)
+
+    # loop.run_forever()
