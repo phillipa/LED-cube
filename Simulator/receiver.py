@@ -18,6 +18,7 @@ import socket
 import asyncio
 from mpl_toolkits import mplot3d
 import os, random
+import queue
 import yaml
 import struct
 import matplotlib.pyplot as plt
@@ -26,11 +27,9 @@ from matplotlib.animation import FuncAnimation
 
 HOST, PORT = "localhost", 4321
 
-
 def send_test_message(message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
     sock.sendto(message, (HOST, PORT))
-
 
 async def write_messages():
     while True:
@@ -56,58 +55,78 @@ async def write_messages():
         await asyncio.sleep(random.uniform(0.1, 3.0))
         send_test_message(msg)
 
-
 class DNRGBProtocol(asyncio.DatagramProtocol):
     def __init__(self):
         super().__init__()
 
     def connection_made(self, transport):
         self.transport = transport
+        self.outputQueue = queue.Queue()
 
     def datagram_received(self, data, addr):
         data_len = len(data) - 2
         pckfmt = "H{}B".format(data_len)
         start_idx, *rgb_vals = struct.unpack(pckfmt, data)
-        print(f"Received message for {(len(data)-2)/3} LEDs")
-        print(f"\tStart offset is {start_idx}")
-        print(f"\tFirst RGB triplet is {rgb_vals[0]}, {rgb_vals[1]}, {rgb_vals[2]}")
+        # print(f"Received message for {(len(data)-2)/3} LEDs")
+        # print(f"\tStart offset is {start_idx}")
+        # print(f"\tFirst RGB triplet is {rgb_vals[0]}, {rgb_vals[1]}, {rgb_vals[2]}")
+        self.outputQueue.put((start_idx, rgb_vals))
 
+    def get_queue(self):
+        return self.outputQueue
 
 class Visualiser:
-    def __init__(self):
+    def __init__(self, queue, config_file):
         self.fig = plt.figure()
         self.ax = plt.axes(projection="3d")
         self.data = None
         self.colors = None
+        self.inQueue = queue
+        self.config = config_file
         
-
-    def plot_init(self, config="./column.yml"):
-        self.data = yaml.load(open(config, "r"))
+    def plot_init(self):
+        self.data = yaml.load(open(self.config, "r"))
         xdata = []
         ydata = []
         zdata = []
+        self.colors = np.zeros((len(self.data), 3))
         for idx in self.data.keys():
             x, y, z = self.data[idx]
             xdata.append(x)
             ydata.append(y)
             zdata.append(z)
-        self.scatter = self.ax.scatter3D(xdata, ydata, zdata)
-
+        self.scatter = self.ax.scatter3D(xdata, ydata, zdata, c=self.colors)
+      
     def update_plot(self, frame):
-        colors = [np.random.random(3) for _ in self.data.keys()]
-        self.scatter._facecolor3d = colors
-        pass
+        if self.inQueue is not None:
+            try:
+                start_idx, color_list = self.inQueue.get(False)
+                #Colors are RGB 0-1 floating point
+                for offset, color in enumerate(color_list):
+                    self.colors[start_idx + offset] = [c/255 for c in color]
 
-
+                self.scatter._facecolor3d = self.colors
+                self.scatter._edgecolor3d = self.colors
+        
+            except queue.Queue.Empty:
+                return
+        
 if __name__ == "__main__":
-    # loop = asyncio.get_event_loop()
-    # t = loop.create_datagram_endpoint(DNRGBProtocol, local_addr=('0.0.0.0', PORT))
+    loop = asyncio.get_event_loop()
+    t = loop.create_datagram_endpoint(DNRGBProtocol, local_addr=('0.0.0.0', PORT))
+    trans, proto = loop.run_until_complete(t)
 
-    vis = Visualiser()
+    q = proto.get_queue()
+    file = "./cube.yml"
+    
+    vis = Visualiser(q, file)
     ani = FuncAnimation(vis.fig, vis.update_plot, init_func=vis.plot_init)
-
     plt.show(block=True)
-    # loop.run_until_complete(t) # Server starts listening
-    # loop.run_until_complete(write_messages()) # Start writing messages (or running tests)
 
-    # loop.run_forever()
+    loop.run_until_complete(write_messages())
+    loop.run_forever()
+
+    trans.close()
+    loop.close()
+
+
