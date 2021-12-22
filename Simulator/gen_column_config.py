@@ -16,7 +16,7 @@ height_leds = 72
 # difference is 168, which isn't a whole strip. WTF. 
 
 theta_per_led = math.radians(360/circ_leds)
-rise_per_led = 1 #cm
+rise_per_led = 2
 
 theta = 0
 turn_count = 0
@@ -24,10 +24,10 @@ config = {}
 for idx in range(circ_leds*height_leds):
     x = math.sin(theta) * column_r
     y = math.cos(theta) * column_r
-    z = (theta/360 * rise_per_led) + (turn_count * rise_per_led)
+    z = (theta/(2*math.pi) * rise_per_led) + (turn_count * rise_per_led)
     theta += theta_per_led
-    if theta > 360:
-        theta = theta % 360
+    if theta > (2*math.pi):
+        theta = theta %(2* math.pi)
         turn_count += 1
     config[idx] = (x, y, z)
 
