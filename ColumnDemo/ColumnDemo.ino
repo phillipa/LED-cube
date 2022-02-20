@@ -1,5 +1,4 @@
-#define USE_OCTOWS2811
-#include <OctoWS2811.h>
+#define USE_OCTOWS2811#include <OctoWS2811.h>
 #include <FastLED.h>
 
 #define GRID_WIDTH 51
