@@ -85,14 +85,14 @@ namespace GIFLoader
                     }
 
                     // Send the frame
-                    nh.Send(deci_frames[iter]));
+                    nh.Send(deci_frames[iter]);
                     Thread.Sleep(FRAME_DELAY);
                     iter++;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($ "Error with passing data to host: {e.Message}");
+                Console.WriteLine("Error with passing data to host: {e.Message}");
             }
             finally
             {
